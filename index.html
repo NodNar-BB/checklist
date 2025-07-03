@@ -383,38 +383,38 @@
 
         // --- DATA STORE (Sample Data) ---
         let data = [
-            { id: 3, type: 'checklist', person: 'ardb', title: 'Brush Teeth', description: 'Brush Teeth', date: '2025-07-03', time: '18:00', completed: false, color: '#f1c40f80', icon: 'images/icons/tooth-cleaning.png' },
-            { id: 3, type: 'checklist', person: 'ardb', title: 'Clean-up Toys', description: 'Clean up Toys', date: '2025-07-03', time: '18:15', completed: false, color: '#f1c40f80', icon: 'images/icons/toys.png' },
-            { id: 3, type: 'checklist', person: 'ardb', title: 'Get dressed', description: 'Dress for Bed', date: '2025-07-03', time: '18:30', completed: false, color: '#f1c40f80', icon: 'images/icons/clothes.png' },
-            { id: 4, type: 'checklist', person: 'jlb', title: 'Bath', description: 'Have a Bath Baby!', date: '2025-07-03', time: '19:00', completed: false, color: '#9b59b680', icon: 'images/icons/bathroom_icon_131138.png' },
-            { id: 7, type: 'checklist', person: 'mom', title: 'Work', description: 'Be a Nursey', date: '2025-07-04', time: '10:00', completed: false, color: '#3498db80', icon: 'images/icons/profile_people_avatar_user_man_doctor_icon_266203.png' },
-            { id: 8, type: 'checklist', person: 'dad', title: 'Coffe', description: 'Just have a god-damn coffe', date: '2025-07-05', time: '14:00', completed: false, color: '#e74c3c80', icon: 'images/icons/coffee_121492.png' },
+            { id: 3, type: 'checklist', person: 'ardb', title: 'Brush Teeth', description: 'Brush Teeth', date: '2025-07-03', time: '18:00', completed: false, color: '#f1c40f80', icon: 'tooth-cleaning.png' },
+            { id: 3, type: 'checklist', person: 'ardb', title: 'Clean-up Toys', description: 'Clean up Toys', date: '2025-07-03', time: '18:15', completed: false, color: '#f1c40f80', icon: 'toys.png' },
+            { id: 3, type: 'checklist', person: 'ardb', title: 'Get dressed', description: 'Dress for Bed', date: '2025-07-03', time: '18:30', completed: false, color: '#f1c40f80', icon: 'clothes.png' },
+            { id: 4, type: 'checklist', person: 'jlb', title: 'Bath', description: 'Have a Bath Baby!', date: '2025-07-03', time: '19:00', completed: false, color: '#9b59b680', icon: 'bathroom_icon_131138.png' },
+            { id: 7, type: 'checklist', person: 'mom', title: 'Work', description: 'Be a Nursey', date: '2025-07-04', time: '10:00', completed: false, color: '#3498db80', icon: 'profile_people_avatar_user_man_doctor_icon_266203.png' },
+            { id: 8, type: 'checklist', person: 'dad', title: 'Coffe', description: 'Just have a god-damn coffe', date: '2025-07-05', time: '14:00', completed: false, color: '#e74c3c80', icon: 'coffee_121492.png' },
         ];
 
         const people = { 'dad': 'Dad', 'mom': 'Mom', 'ardb': 'Asher', 'jlb': 'Jensen' };
         const personImages = {
-            'dad': 'images/dad.png', // REPLACE with actual path to dad's image
-            'mom': 'images/mum.png', // REPLACE with actual path to mom's image
-            'ardb': 'images/ardb.png', // REPLACE with actual path to kid1's image
-            'jlb': 'images/jlb2.png', // REPLACE with actual path to kid2's image
+            'dad': 'dad.png', // REPLACE with actual path to dad's image
+            'mom': 'mum.png', // REPLACE with actual path to mom's image
+            'ardb': 'ardb.png', // REPLACE with actual path to kid1's image
+            'jlb': 'jlb2.png', // REPLACE with actual path to kid2's image
             // You can add a default image if an item doesn't have a specific person, or the person is 'all'
             // 'all': 'https://example.com/images/family_icon.png'
         };
         const colors = ['#3498db80', '#e74c3c80', '#2ecc7180', '#f1c40f80', '#9b59b680', '#1abc9c80', '#e67e2280'];
         const icons = [ 
-            'images/icons/bathroom_icon_131138.png',                                                            // Bathroom
-            'images/icons/broom.png',                                                                           // Broom
-            'images/icons/christmas_packaging_present_bag_gift_surprise_icon_266926.png',                       // Christmas Gift
-            'images/icons/clock_check_hour_date_time_alarm_icon_267071.png',                                    // Clock
-            'images/icons/coffee_121492.png',                                                                   // Coffee
-            'images/icons/colorful_fun_party_celebration_decoration_balloons_icon_266908.png',                  // Party
-            'images/icons/fun_decoration_festive_party_celebration_confetti_icon_266935.png',                   // Party2
-            'images/icons/medical_drug_medication_medicine_pills_bottle_icon_266393.png',                       // Meds
-            'images/icons/mop.png',                                                                             // Clean
-            'images/icons/profile_people_avatar_user_man_doctor_icon_266203.png',                               // Nurse
-            'images/icons/tooth-cleaning.png',                                                                  // Teeth
-            'images/icons/clothes.png',                                                                         // Clothes
-            'images/icons/toys.png'                                                                             // Toys
+            'bathroom_icon_131138.png',                                                            // Bathroom
+            'broom.png',                                                                           // Broom
+            'christmas_packaging_present_bag_gift_surprise_icon_266926.png',                       // Christmas Gift
+            'clock_check_hour_date_time_alarm_icon_267071.png',                                    // Clock
+            'coffee_121492.png',                                                                   // Coffee
+            'colorful_fun_party_celebration_decoration_balloons_icon_266908.png',                  // Party
+            'fun_decoration_festive_party_celebration_confetti_icon_266935.png',                   // Party2
+            'medical_drug_medication_medicine_pills_bottle_icon_266393.png',                       // Meds
+            'mop.png',                                                                             // Clean
+            'profile_people_avatar_user_man_doctor_icon_266203.png',                               // Nurse
+            'tooth-cleaning.png',                                                                  // Teeth
+            'clothes.png',                                                                         // Clothes
+            'toys.png'                                                                             // Toys
         ]; // images/icons/
 
         // --- DOM ELEMENTS ---
