@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Hub Checklist</title>
+    <style>
+        /* --- Basic Setup & Typography --- */
+        :root {
+            --primary-bg: #f4f7fa;
+            --secondary-bg: #ffffff;
+            --header-bg: #2c3e50;
+            --accent-color: #3498db;
+            --text-color: #34495e;
+            --border-color: #e0e6ed;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --header-text: #ecf0f1;
+            --danger-color: #e74c3c;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* --- Main App Container --- */
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        /* --- Header & Controls --- */
+        .app-header {
+            background-color: var(--header-bg);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 6px var(--shadow-color);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 5px;
+        }
+
+        .control-group button, .add-btn {
+            background-color: transparent;
+            border: none;
+            color: var(--header-text);
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .control-group button.active {
+            background-color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        .control-group button:hover:not(.active) {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .add-btn {
+            background-color: var(--accent-color);
+            font-weight: bold;
+        }
+        .add-btn:hover {
+            opacity: 0.9;
+        }
+        
+        /* --- Content Area --- */
+        #content-area {
+            display: grid;
+            gap: 20px;
+            min-height: 70vh;
+        }
+
+        #content-area.all-view {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+        }
+        .person-column {
+            flex: 1;
+            min-width: 300px;
+            background: var(--secondary-bg);
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 2px 4px var(--shadow-color);
+        }
+        .person-column-header {
+            display: flex; /* Make it a flex container to align image and text */
+            align-items: center; /* Vertically center image and text */
+            justify-content: center; /* Center the entire header content */
+            gap: 10px; /* Space between image and text */
+            text-align: center; /* Kept for general centering but flex will handle direct children */
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .person-thumbnail-header {
+            width: 100px; /* Larger size for header image */
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent-color); /* A border that matches the accent color */
+        }
+
+        /* --- Checklist View --- */
+        .checklist-container {
+            background: var(--secondary-bg);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+            gap: 15px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            /* Added border for contrast against custom background */
+            border: 1px solid rgba(0,0,0,0.1); 
+            margin-bottom: 5px; /* Added margin for separation */
+            border-radius: 5px; /* Added border-radius */
+            color: rgb(0, 0, 0); /* Make text color white for better contrast */
+        }
+        .checklist-item:last-child { border-bottom: none; }
+        .checklist-item:hover { opacity: 0.9; } /* Changed hover effect */
+        .checklist-item input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer;} /*filter: invert(1);*/
+        .checklist-item .item-details { flex-grow: 1; }
+        .checklist-item .item-title { font-size: 1rem; font-weight: 500; }
+        .checklist-item .item-desc { font-size: 0.85rem; opacity: 0.8; }
+        .checklist-item.completed .item-title,
+        .checklist-item.completed .item-desc { text-decoration: line-through; opacity: 0.6; }
+        .checklist-item-icon { width: 50px; height: 50px;} /*filter: invert(1);*/
+
+
+        /* --- Modals --- */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.visible { display: flex; }
+        .modal-content {
+            background-color: var(--secondary-bg);
+            margin: auto;
+            padding: 25px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        .close-btn {
+            color: #aaa;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* Form styling */
+        #add-item-form h2 { margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input[type="text"], 
+        .form-group input[type="date"], 
+        .form-group input[type="time"], 
+        .form-group textarea,
+        .form-group select { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; box-sizing: border-box; font-size: 1rem; }
+        textarea { resize: vertical; min-height: 80px; }
+        .form-row { display: flex; gap: 10px; }
+        .form-row .form-group { flex: 1; }
+        .color-selector, .icon-selector { display: flex; gap: 10px; flex-wrap: wrap; }
+        .color-swatch, .icon-option { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
+        .icon-option { background-size: contain; background-repeat: no-repeat; background-position: center; }
+        .color-swatch.selected, .icon-option.selected { border-color: var(--accent-color); }
+        #submit-add-item-btn { background-color: var(--accent-color); color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-size: 1.1rem; font-weight: bold; }
+        
+        /* --- View/Edit Modal --- */
+        #view-item-modal .modal-content { padding: 0; }
+        .view-modal-header {
+            padding: 20px;
+            background-color: var(--accent-color);
+            color: white;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        #view-item-icon { width: 40px; height: 40px; }
+        #view-item-title { font-size: 1.5rem; margin: 0; }
+        .view-modal-body { padding: 20px; }
+        #view-item-time, #view-item-person { font-weight: bold; margin-bottom: 15px; }
+        #view-item-description {
+            background-color: var(--primary-bg);
+            padding: 10px;
+            border-radius: 5px;
+            min-height: 60px;
+        }
+        .view-modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 15px 20px;
+            border-top: 1px solid var(--border-color);
+        }
+        .modal-btn { padding: 8px 16px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; }
+        #edit-item-btn { background-color: var(--accent-color); color: white; }
+        #delete-item-btn { background-color: var(--danger-color); color: white; }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 768px) {
+            .app-header { flex-direction: column; align-items: stretch; }
+            .control-group { justify-content: center; }
+            #content-area.all-view { flex-direction: column; }
+        }
+        /* --- Task Counter and Progress Bar Styles --- */
+        .task-counter {
+            text-align: center;
+            margin-top: 10px;
+            width: 100%; /* Ensure it takes full width of the header */
+        }
+
+        .task-text {
+            font-size: 0.9rem;
+            color: var(--text-color);
+            font-weight: normal; /* Override bold from header */
+        }
+
+        .progress-bar-container {
+            width: 80%; /* Adjust width of the bar */
+            height: 8px; /* Height of the bar */
+            background-color: var(--primary-bg); /* Background of the empty bar */
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 5px auto 0 auto; /* Center the bar below the text */
+            border: 1px solid var(--border-color);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--accent-color); /* Default fill color */
+            border-radius: 4px;
+            transition: width 0.5s ease-in-out; /* Smooth transition for progress */
+        }
+
+        /* Adjust header to stack items vertically */
+        .person-column-header {
+            flex-direction: column; /* Stack items vertically */
+            padding-bottom: 15px; /* Increase padding to accommodate counter */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <header class="app-header">
+            <div class="control-group" id="view-toggle" style="display: none;">
+                <button class="active" data-view="checklist">Checklist</button>
+            </div>
+            <div class="control-group" id="person-toggle">
+                <button class="active" data-person="all">All</button>
+                <button data-person="dad">Dad</button>
+                <button data-person="mom">Mom</button>
+                <button data-person="ardb">Asher</button>
+                <button data-person="jlb">Jensen</button>
+            </div>
+            <button class="add-btn" id="open-modal-btn">+</button>
+        </header>
+
+        <main id="content-area">
+            </main>
+    </div>
+
+    <div id="add-item-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <form id="add-item-form">
+                <h2 id="modal-title">Add New Item</h2>
+                <div class="form-group">
+                    <label for="item-title">Title</label>
+                    <input type="text" id="item-title" required>
+                </div>
+                <div class="form-group">
+                    <label for="item-desc">Description (optional)</label>
+                    <textarea id="item-desc"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="item-person">For</label>
+                        <select id="item-person">
+                            <option value="dad">Dad</option>
+                            <option value="mom">Mom</option>
+                            <option value="ardb">Asher</option>
+                            <option value="jlb">Jensen</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="item-date">Date</label>
+                        <input type="date" id="item-date" required>
+                    </div>
+                </div>
+                 <div class="form-group" id="checklist-time-field">
+                    <label for="item-due-time">Time</label>
+                    <input type="time" id="item-due-time" value="12:00">
+                </div>
+                <div class="form-group">
+                    <label>Color</label>
+                    <div class="color-selector" id="item-color"></div>
+                </div>
+                <div class="form-group">
+                    <label>Icon</label>
+                    <div class="icon-selector" id="item-icon"></div>
+                </div>
+                <button type="submit" id="submit-add-item-btn">Add Item</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="view-item-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div class="view-modal-header">
+                <img id="view-item-icon" src="" alt="icon">
+                <h2 id="view-item-title"></h2>
+            </div>
+            <div class="view-modal-body">
+                <p id="view-item-time"></p>
+                <p id="view-item-person"></p>
+                <p id="view-item-description"></p>
+            </div>
+            <div class="view-modal-footer">
+                <button class="modal-btn" id="delete-item-btn">Delete</button>
+                <button class="modal-btn" id="edit-item-btn">Edit</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // --- STATE MANAGEMENT ---
+        let state = {
+            currentView: 'checklist', // Always checklist
+            currentPerson: 'all',
+            editingItemId: null,
+            viewingItemId: null,
+        };
+
+        // --- DATA STORE (Sample Data) ---
+        let data = [
+            { id: 3, type: 'checklist', person: 'ardb', title: 'Brush Teeth', description: 'Brush Teeth', date: '2025-07-03', time: '18:00', completed: false, color: '#f1c40f80', icon: 'images/icons/tooth-cleaning.png' },
+            { id: 3, type: 'checklist', person: 'ardb', title: 'Clean-up Toys', description: 'Clean up Toys', date: '2025-07-03', time: '18:15', completed: false, color: '#f1c40f80', icon: 'images/icons/toys.png' },
+            { id: 3, type: 'checklist', person: 'ardb', title: 'Get dressed', description: 'Dress for Bed', date: '2025-07-03', time: '18:30', completed: false, color: '#f1c40f80', icon: 'images/icons/clothes.png' },
+            { id: 4, type: 'checklist', person: 'jlb', title: 'Bath', description: 'Have a Bath Baby!', date: '2025-07-03', time: '19:00', completed: false, color: '#9b59b680', icon: 'images/icons/bathroom_icon_131138.png' },
+            { id: 7, type: 'checklist', person: 'mom', title: 'Work', description: 'Be a Nursey', date: '2025-07-04', time: '10:00', completed: false, color: '#3498db80', icon: 'images/icons/profile_people_avatar_user_man_doctor_icon_266203.png' },
+            { id: 8, type: 'checklist', person: 'dad', title: 'Coffe', description: 'Just have a god-damn coffe', date: '2025-07-05', time: '14:00', completed: false, color: '#e74c3c80', icon: 'images/icons/coffee_121492.png' },
+        ];
+
+        const people = { 'dad': 'Dad', 'mom': 'Mom', 'ardb': 'Asher', 'jlb': 'Jensen' };
+        const personImages = {
+            'dad': 'images/dad.png', // REPLACE with actual path to dad's image
+            'mom': 'images/mum.png', // REPLACE with actual path to mom's image
+            'ardb': 'images/ardb.png', // REPLACE with actual path to kid1's image
+            'jlb': 'images/jlb2.png', // REPLACE with actual path to kid2's image
+            // You can add a default image if an item doesn't have a specific person, or the person is 'all'
+            // 'all': 'https://example.com/images/family_icon.png'
+        };
+        const colors = ['#3498db80', '#e74c3c80', '#2ecc7180', '#f1c40f80', '#9b59b680', '#1abc9c80', '#e67e2280'];
+        const icons = [ 
+            'images/icons/bathroom_icon_131138.png',                                                            // Bathroom
+            'images/icons/broom.png',                                                                           // Broom
+            'images/icons/christmas_packaging_present_bag_gift_surprise_icon_266926.png',                       // Christmas Gift
+            'images/icons/clock_check_hour_date_time_alarm_icon_267071.png',                                    // Clock
+            'images/icons/coffee_121492.png',                                                                   // Coffee
+            'images/icons/colorful_fun_party_celebration_decoration_balloons_icon_266908.png',                  // Party
+            'images/icons/fun_decoration_festive_party_celebration_confetti_icon_266935.png',                   // Party2
+            'images/icons/medical_drug_medication_medicine_pills_bottle_icon_266393.png',                       // Meds
+            'images/icons/mop.png',                                                                             // Clean
+            'images/icons/profile_people_avatar_user_man_doctor_icon_266203.png',                               // Nurse
+            'images/icons/tooth-cleaning.png',                                                                  // Teeth
+            'images/icons/clothes.png',                                                                         // Clothes
+            'images/icons/toys.png'                                                                             // Toys
+        ]; // images/icons/
+
+        // --- DOM ELEMENTS ---
+        const viewToggle = document.getElementById('view-toggle'); // Kept for consistency but effectively removed from UI
+        const personToggle = document.getElementById('person-toggle');
+        const contentArea = document.getElementById('content-area');
+        const openModalBtn = document.getElementById('open-modal-btn');
+        const addItemModal = document.getElementById('add-item-modal');
+        const closeAddModalBtn = addItemModal.querySelector('.close-btn');
+        const addItemForm = document.getElementById('add-item-form');
+        
+        const viewItemModal = document.getElementById('view-item-modal');
+        const closeViewModalBtn = viewItemModal.querySelector('.close-btn');
+        const editItemBtn = document.getElementById('edit-item-btn');
+        const deleteItemBtn = document.getElementById('delete-item-btn');
+        
+        // --- EVENT LISTENERS ---
+        // viewToggle.addEventListener('click', (e) => handleToggle(e, 'currentView', 'view')); // No longer needed for single view
+        personToggle.addEventListener('click', (e) => handleToggle(e, 'currentPerson', 'person'));
+        openModalBtn.addEventListener('click', openAddModal);
+        closeAddModalBtn.addEventListener('click', closeAddModal);
+        addItemForm.addEventListener('submit', handleFormSubmit);
+        contentArea.addEventListener('click', handleContentClick);
+        
+        closeViewModalBtn.addEventListener('click', closeViewModal);
+        editItemBtn.addEventListener('click', handleEditClick);
+        deleteItemBtn.addEventListener('click', handleDeleteClick);
+        window.addEventListener('click', (e) => {
+            if (e.target == addItemModal) closeAddModal();
+            if (e.target == viewItemModal) closeViewModal();
+        });
+
+        // Toggle handler
+        function handleToggle(e, stateKey, dataKey) {
+            if (e.target.tagName === 'BUTTON') {
+                state[stateKey] = e.target.dataset[dataKey];
+                updateActiveButtons();
+                render();
+            }
+        }
+        
+        // Main click handler for content area
+        function handleContentClick(e) {
+            const checklistItem = e.target.closest('.checklist-item');
+
+            if (checklistItem) {
+                const checkbox = checklistItem.querySelector('input[type="checkbox"]');
+                const itemId = parseInt(checklistItem.dataset.id);
+                const item = data.find(i => i.id === itemId);
+                if(item) {
+                    if (e.target !== checkbox) checkbox.checked = !checkbox.checked;
+                    item.completed = checkbox.checked;
+                    render();
+                }
+            }
+        }
+
+        // --- MODAL & FORM HANDLING ---
+        function openAddModal() {
+            state.editingItemId = null; // Ensure we are in "add" mode
+            addItemForm.reset();
+            // Set default date to today for convenience
+            document.getElementById('item-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('modal-title').textContent = 'Add New Item';
+            document.getElementById('submit-add-item-btn').textContent = 'Add Item';
+            
+            populateSelectors();
+            addItemModal.classList.add('visible');
+        }
+
+        function closeAddModal() {
+            addItemModal.classList.remove('visible');
+            state.editingItemId = null;
+        }
+
+        function populateSelectors(selectedColor, selectedIcon) {
+            const colorContainer = document.getElementById('item-color');
+            colorContainer.innerHTML = '';
+            colors.forEach(color => {
+                const swatch = document.createElement('div');
+                swatch.className = 'color-swatch';
+                swatch.style.backgroundColor = color;
+                swatch.dataset.color = color;
+                if (color === selectedColor || (!selectedColor && color === colors[0])) swatch.classList.add('selected');
+                swatch.addEventListener('click', () => {
+                    colorContainer.querySelector('.selected')?.classList.remove('selected');
+                    swatch.classList.add('selected');
+                });
+                colorContainer.appendChild(swatch);
+            });
+
+            const iconContainer = document.getElementById('item-icon');
+            iconContainer.innerHTML = '';
+            icons.forEach(iconUrl => {
+                const option = document.createElement('div');
+                option.className = 'icon-option';
+                option.style.backgroundImage = `url(${iconUrl})`;
+                option.dataset.icon = iconUrl;
+                if (iconUrl === selectedIcon || (!selectedIcon && iconUrl === icons[0])) option.classList.add('selected');
+                option.addEventListener('click', () => {
+                    iconContainer.querySelector('.selected')?.classList.remove('selected');
+                    option.classList.add('selected');
+                });
+                iconContainer.appendChild(option);
+            });
+        }
+
+        // Form submission handles both add and edit
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const itemData = {
+                type: 'checklist', // Always checklist
+                person: document.getElementById('item-person').value,
+                title: document.getElementById('item-title').value,
+                description: document.getElementById('item-desc').value,
+                date: document.getElementById('item-date').value,
+                time: document.getElementById('item-due-time').value,
+                color: document.querySelector('#item-color .selected').dataset.color,
+                icon: document.querySelector('#item-icon .selected').dataset.icon,
+            };
+
+            if (state.editingItemId) { // We are editing
+                const index = data.findIndex(item => item.id === state.editingItemId);
+                if (index !== -1) {
+                    data[index] = { ...data[index], ...itemData };
+                }
+            } else { // We are adding
+                itemData.id = Date.now();
+                itemData.completed = false;
+                data.push(itemData);
+            }
+            
+            closeAddModal();
+            render();
+        }
+
+        // View/Edit/Delete Modal Logic
+        function openViewModal(itemId) {
+            const item = data.find(i => i.id === itemId);
+            if (!item) return;
+            
+            state.viewingItemId = itemId;
+            
+            document.getElementById('view-item-icon').src = item.icon;
+            document.getElementById('view-item-title').textContent = item.title;
+            document.getElementById('view-item-description').textContent = item.description || 'No description.';
+            document.getElementById('view-item-person').textContent = `For: ${people[item.person] || 'All'}`;
+            document.getElementById('view-item-time').textContent = `When: ${item.date} at ${item.time}`;
+
+            viewItemModal.classList.add('visible');
+        }
+
+        function closeViewModal() {
+            viewItemModal.classList.remove('visible');
+            state.viewingItemId = null;
+        }
+
+        function handleEditClick() {
+            const item = data.find(i => i.id === state.viewingItemId);
+            if (!item) return;
+
+            closeViewModal();
+            state.editingItemId = item.id;
+
+            // Populate and open the add/edit modal
+            document.getElementById('modal-title').textContent = 'Edit Item';
+            document.getElementById('submit-add-item-btn').textContent = 'Save Changes';
+            document.getElementById('item-title').value = item.title;
+            document.getElementById('item-desc').value = item.description;
+            document.getElementById('item-person').value = item.person;
+            document.getElementById('item-date').value = item.date;
+            document.getElementById('item-due-time').value = item.time;
+            
+            populateSelectors(item.color, item.icon);
+            addItemModal.classList.add('visible');
+        }
+
+        function handleDeleteClick() {
+            if (confirm('Are you sure you want to delete this item?')) {
+                data = data.filter(item => item.id !== state.viewingItemId);
+                closeViewModal();
+                render();
+            }
+        }
+
+        // --- RENDER FUNCTIONS ---
+        function updateActiveButtons() {
+            // No longer need to toggle view-toggle buttons as there's only one view
+            document.querySelectorAll('#person-toggle button').forEach(b => b.classList.toggle('active', b.dataset.person === state.currentPerson));
+        }
+
+        function render() {
+            contentArea.innerHTML = '';
+            contentArea.className = '';
+            updateActiveButtons();
+            
+            let filteredData = data.filter(item => {
+                if (state.currentPerson === 'all') return true;
+                return item.person === state.currentPerson || item.person === 'all';
+            });
+            // Data is always checklist type now
+            
+            if (state.currentPerson === 'all') {
+                renderAllPeopleChecklistView(filteredData);
+            } else {
+                renderChecklist(filteredData, contentArea);
+            }
+        }
+        
+        function renderAllPeopleChecklistView(fullData) {
+            contentArea.classList.add('all-view');
+            Object.keys(people).forEach(personKey => {
+                const column = document.createElement('div');
+                column.className = 'person-column';
+                
+                // Calculate tasks for this person
+                const personTasks = fullData.filter(item => item.person === personKey);
+                const completedTasks = personTasks.filter(item => item.completed).length;
+                const totalTasks = personTasks.length;
+                
+                // Calculate progress percentage
+                const progressPercentage = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+
+                column.innerHTML = `
+                    <div class="person-column-header">
+                        <img src="${personImages[personKey]}" alt="${people[personKey]}" class="person-thumbnail-header">
+                        ${people[personKey]}
+                        <div class="task-counter">
+                            <span class="task-text">✓ ${completedTasks}/${totalTasks}</span>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar-fill" style="width: ${progressPercentage}%;"></div>
+                            </div>
+                        </div>
+                    </div>`;
+                const personData = fullData.filter(item => item.person === personKey || item.person === 'all');
+                renderChecklist(personData, column);
+                contentArea.appendChild(column);
+            });
+        }
+        
+        function renderChecklist(items, container) {
+            container.classList.add('checklist-container');
+            if (items.length === 0) {
+                container.innerHTML += '<p>No checklist items.</p>'; return;
+            }
+            items.sort((a, b) => {
+                // Sort by date, then by time
+                if (a.date !== b.date) {
+                    return new Date(a.date) - new Date(b.date);
+                }
+                return a.time.localeCompare(b.time);
+            });
+
+            items.forEach(item => {
+                const itemEl = document.createElement('div');
+                itemEl.className = `checklist-item ${item.completed ? 'completed' : ''}`;
+                itemEl.dataset.id = item.id;
+                 itemEl.style.backgroundColor = item.color; // Apply the selected color
+                    itemEl.innerHTML = `<input type="checkbox" ${item.completed ? 'checked' : ''}><img src="${item.icon}" alt="icon" class="checklist-item-icon"><div class="item-details"><div class="item-title">${item.title}</div><div class="item-desc">${item.description}</div></div><div class="item-time">${item.date} ${item.time}</div>`;
+
+                                
+                // Add event listener for viewing/editing on the item, not just checkbox
+                itemEl.addEventListener('click', (e) => {
+                    if (e.target.tagName !== 'INPUT') { // Don't open modal when clicking checkbox
+                        openViewModal(item.id);
+                    }
+                });
+                
+                container.appendChild(itemEl);
+            });
+        }
+
+        // --- INITIALIZATION ---
+        render();
+    });
+    </script>
+
+</body>
+</html>
